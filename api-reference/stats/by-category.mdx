@@ -1,0 +1,84 @@
+---
+title: 'By category'
+description: 'Get totals for all categories in a given period.'
+api: 'GET /api/stats/by-category'
+---
+
+Returns totals for every category that has transactions in the selected period. Unlike [top categories](/api-reference/stats/top-categories), this endpoint returns the full breakdown across all categories. Used by the Dashboard charts for the complete category breakdown view.
+
+## Query parameters
+
+<ParamField query="year" type="string">
+  Filter by year. Defaults to the current year when omitted.
+
+  Example: `2024`
+</ParamField>
+
+<ParamField query="month" type="string">
+  Filter by month as a numeric string (`1`–`12`). Defaults to the current month when omitted.
+
+  Example: `3`
+</ParamField>
+
+## Response
+
+An array of `DataOptions` objects, one per category that has at least one transaction in the selected period.
+
+<ResponseField name="" type="DataOptions[]">
+  Array of all categories with their period totals.
+
+  <Expandable title="DataOptions properties" defaultOpen={true}>
+    <ResponseField name="name" type="string" required>
+      The category name.
+    </ResponseField>
+    <ResponseField name="value" type="number" required>
+      Total amount for this category in the selected period.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<Note>
+  Categories with no transactions in the selected period are excluded from the response.
+</Note>
+
+<RequestExample>
+
+```bash cURL
+curl --request GET \
+  --url "${VITE_API_URL}/api/stats/by-category?year=2024&month=3"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+[
+  {
+    "name": "Food",
+    "value": 620.00
+  },
+  {
+    "name": "Transport",
+    "value": 310.50
+  },
+  {
+    "name": "Entertainment",
+    "value": 180.00
+  },
+  {
+    "name": "Salary",
+    "value": 3500.00
+  },
+  {
+    "name": "Utilities",
+    "value": 90.00
+  }
+]
+```
+
+```json 200 (no data)
+[]
+```
+
+</ResponseExample>

@@ -1,0 +1,44 @@
+---
+title: 'Delete category'
+description: 'Permanently delete a category by ID.'
+api: 'DELETE /api/categories/{id}'
+---
+
+Deletes the category identified by `id`. Returns no body on success.
+
+<Warning>
+  This action is permanent. Any transactions that reference the deleted category will retain the category name as a string, but the category will no longer appear in the categories list.
+</Warning>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the category to delete.
+</ParamField>
+
+## Response
+
+Returns HTTP `204 No Content` on success with an empty response body.
+
+<RequestExample>
+
+```bash cURL
+curl --request DELETE \
+  --url "${VITE_API_URL}/api/categories/4"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```text 204
+(empty body)
+```
+
+```json 404
+{
+  "message": "Category not found"
+}
+```
+
+</ResponseExample>

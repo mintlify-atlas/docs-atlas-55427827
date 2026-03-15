@@ -1,0 +1,142 @@
+---
+title: Configuration
+description: Configure environment variables and customize Personal Finance Web for your setup.
+---
+
+## Environment variables
+
+Personal Finance Web uses a single required environment variable.
+
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_API_URL` | Yes | Base URL of the REST API backend. All API requests are prefixed with this value. |
+
+Create a `.env` file in the project root:
+
+```bash .env
+VITE_API_URL=https://api.example.com
+```
+
+For local development, point it at your local backend:
+
+```bash .env
+VITE_API_URL=http://localhost:3000
+```
+
+<Note>
+Vite only exposes variables prefixed with `VITE_` to browser code. Never store secrets or private keys in `.env` — everything in this file is bundled into the client.
+</Note>
+
+### How the app reads it
+
+All API calls are centralized in `src/api/transactions.ts`. The base URL is read once at module load:
+
+```typescript src/api/transactions.ts
+const API_URL = import.meta.env.VITE_API_URL;
+```
+
+Every fetch call in that file is relative to `API_URL`, so changing the variable in `.env` is the only change needed to switch backends.
+
+## Dark mode
+
+The app supports `light` and `dark` themes. The active theme is persisted in `localStorage` under the key `theme`.
+
+| Key | Values | Default behavior |
+|---|---|---|
+| `theme` | `"light"` or `"dark"` | Auto-detects system preference via `prefers-color-scheme` on first load |
+
+On startup, `SettingsContext` checks `localStorage` first. If no saved preference exists, it falls back to the OS setting:
+
+```typescript src/context/SettingsContext.tsx
+const [isDark, setIsDark] = useState(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        return savedTheme;
+    }
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+    }
+    return 'light';
+});
+```
+
+Whenever the theme changes, the value is written back to `localStorage` and the `dark` class is toggled on `<html>`.
+
+<Tip>
+Users can toggle dark mode at any time from the **Settings** page without reloading the app.
+</Tip>
+
+## User session
+
+The app does not use an external authentication service. The session is stored in `localStorage` under the key `user-login-finances`.
+
+| Key | Type | Description |
+|---|---|---|
+| `user-login-finances` | JSON object | Active user session. Absence of this key means the user is logged out. |
+
+The stored value has the following shape:
+
+```json
+{
+  "userName": "Alice",
+  "userAvatar": "https://api.dicebear.com/9.x/dylan/svg?seed=Andrea&..."
+}
+```
+
+On startup, the app parses this value to restore the session. Protected routes redirect to `/login` when it is absent. Logging out removes the key entirely.
+
+## npm scripts
+
+The following scripts are defined in `package.json`:
+
+| Script | Command | Description |
+|---|---|---|
+| `dev` | `vite --host` | Starts the Vite dev server and exposes it on the local network |
+| `build` | `tsc -b && vite build` | Type-checks with TypeScript and produces a production bundle |
+| `lint` | `eslint .` | Runs ESLint across the entire project |
+| `preview` | `vite preview` | Serves the production build locally for final verification |
+
+```bash
+# Development
+npm run dev
+
+# Production build
+npm run build
+
+# Preview the production build
+npm run preview
+
+# Lint the codebase
+npm run lint
+```
+
+## Build output
+
+Running `npm run build` performs a TypeScript type check (`tsc -b`) followed by `vite build`. The output is written to the `dist/` directory:
+
+```
+dist/
+├── index.html
+├── assets/
+│   ├── index-[hash].js
+│   └── index-[hash].css
+└── vite.svg
+```
+
+Serve the `dist/` directory with any static file host or CDN.
+
+<Note>
+The `dist/` directory is not committed to version control. Run `npm run build` in your CI pipeline or deployment environment to generate it.
+</Note>
+
+## TypeScript configuration
+
+The project uses a composite TypeScript setup with three config files:
+
+| File | Purpose |
+|---|---|
+| `tsconfig.json` | Root config that references the app and node configs |
+| `tsconfig.app.json` | Browser-targeted config for `src/` files |
+| `tsconfig.node.json` | Node-targeted config for `vite.config.ts` and other tooling files |
+
+This split ensures that browser code and Node.js tooling are checked with appropriate compiler settings, and that `tsc -b` can build both in one pass.

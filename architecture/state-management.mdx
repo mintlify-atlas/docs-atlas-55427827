@@ -1,0 +1,267 @@
+---
+title: "State management"
+description: "How application state is managed using React Context and custom hooks."
+---
+
+The app uses the **React Context API** for global state. There is no Redux, Zustand, or other external state library. Each context is focused on a single concern and is only mounted where it is needed.
+
+## Provider tree
+
+The provider hierarchy, from outermost to innermost, is:
+
+```tsx
+// main.tsx
+<BrowserRouter>
+  <SettingsContextProvider>   {/* always mounted */}
+    <App />
+  </SettingsContextProvider>
+</BrowserRouter>
+
+// App.tsx — per-route providers
+<DashboardContextProvider>    {/* mounted on "/" only */}
+  <Dashboard />
+</DashboardContextProvider>
+
+<TransactionsContextProvider> {/* mounted on "/transactions" only */}
+  <Transactions />
+</TransactionsContextProvider>
+```
+
+`DashboardContext` and `TransactionsContext` are only alive while their respective route is active, keeping memory usage and side-effects scoped.
+
+## TypeScript types
+
+All shared types live in `src/types/types.tsx`.
+
+```ts
+export interface Balance {
+  transactionsAmount: {
+    current:  { income: number | null; expense: number | null; balance: number | null }
+    previous: { income: number | null; expense: number | null; balance: number | null }
+  }
+  change: { income: number | null; expense: number | null; balance: number | null }
+}
+
+export type Transaction = {
+  id?:         string
+  type:        "income" | "expense"
+  category:    string
+  description: string
+  date:        string
+  amount:      number
+}
+
+export type Category = {
+  id?:  string
+  name: string
+}
+
+export interface DataOptions {
+  value: number
+  name:  string
+}
+
+export type Filters = {
+  type?:     string
+  category?: string
+  year?:     string
+  month?:    string
+}
+
+export type UserSession = {
+  userName:   string
+  userAvatar: string
+}
+```
+
+## Contexts
+
+### SettingsContext
+
+**File:** `src/context/SettingsContext.tsx`  
+**Mounted:** always (root of the app in `main.tsx`)  
+**Consumed by:** `ProtectedRoute`, `App`, `Settings` page
+
+Manages user session, display name, avatar, and the colour-scheme preference.
+
+```ts
+type SettingsContexType = {
+  user:             UserSession | null
+  setUser:          React.Dispatch<React.SetStateAction<UserSession | null>>
+  updateUserAvatar: (avatar: string) => void
+  updateUserName:   (name: string) => void
+  userName:         string
+  setUserName:      React.Dispatch<React.SetStateAction<string>>
+  userAvatar:       string
+  setUserAvatar:    React.Dispatch<React.SetStateAction<string>>
+  logout:           () => void
+  avatarsURL:       string[]
+  saveUser:         (e: React.FormEvent<HTMLFormElement>) => void
+  setIsDark:        React.Dispatch<React.SetStateAction<string>>
+  isDark:           string
+}
+```
+
+**localStorage keys used by this context:**
+
+| Key | Value |
+|---|---|
+| `user-login-finances` | JSON-serialised `UserSession` object |
+| `theme` | `"light"` or `"dark"` |
+
+On mount, the context reads both keys from `localStorage` to restore session and theme across page reloads. When `user` becomes `null` (after `logout()`), the key is removed. The `theme` key is kept in sync with the `isDark` state via a `useEffect` that also toggles the `dark` class on `document.documentElement`.
+
+<Tip>
+  The initial theme is derived from `localStorage` first. If no saved preference exists, it falls back to the `prefers-color-scheme` media query.
+</Tip>
+
+### DashboardContext
+
+**File:** `src/context/DashboardContext.tsx`  
+**Mounted:** on the `/` route only  
+**Consumed by:** `Dashboard` page and its child components
+
+Orchestrates all data needed by the Dashboard: balance statistics, category breakdowns, and a chart-ready transaction series. Filters are stored here and changes trigger a full re-fetch via `Promise.all`.
+
+```ts
+type DashboardContextType = {
+  filters:            Filters
+  updateFilter:       <K extends keyof Filters>(key: K, value: Filters[K]) => void
+  setFilters:         React.Dispatch<React.SetStateAction<Filters>>
+  balanceData:        Balance
+  topCategories:      DataOptions[]
+  allCategories:      DataOptions[]
+  transactions:       DataOptions[]
+  isMobile:           boolean
+  isTablet:           boolean
+  chartHeight:        number
+  loading:            boolean
+  error:              string | null
+  fetchDashboardData: () => Promise<void>
+}
+```
+
+Filters default to the current calendar month and year. Whenever `filters` changes, the context cancels any in-flight request (via a `cancelled` flag) and fires a new `fetchDashboardData` call.
+
+### TransactionsContext
+
+**File:** `src/context/TransactionsContext.tsx`  
+**Mounted:** on the `/transactions` route only  
+**Consumed by:** `Transactions` page and its child components
+
+Composes three custom hooks to expose a single, unified context value:
+
+```ts
+type TransactionsContextType = {
+  transactions:          Transaction[]
+  error:                 string | null
+  loading:               boolean
+  filters:               Filters
+  updateFilter:          (key: FilterKey, value: string) => void
+  resetFilters:          () => void
+  loadData:              () => Promise<void>
+  categories:            Category[] | null
+  currentPage:           number
+  totalPages:            number
+  pagedResults:          Transaction[]
+  formData:              Transaction
+  setFormData:           React.Dispatch<React.SetStateAction<Transaction>>
+  isModalEditOpen:       boolean
+  setIsModalEditOpen:    React.Dispatch<React.SetStateAction<boolean>>
+  isModalDeleteOpen:     boolean
+  setIsModalDeleteOpen:  React.Dispatch<React.SetStateAction<boolean>>
+}
+```
+
+## Custom hooks
+
+### `usePagination`
+
+**File:** `src/hooks/usePagination.tsx`
+
+Derives pagination state from the URL `page` search parameter and a list of transactions. The current page is read from (and written to) the URL so that page position survives navigation.
+
+```ts
+export const RESULT_PER_PAGE = 5
+
+export default function usePagination(transactions: Transaction[]) {
+  const [searchParams] = useSearchParams()
+  const currentPage = Number(searchParams.get('page') ?? '1')
+
+  const totalPages = useMemo(
+    () => Math.ceil(transactions.length / RESULT_PER_PAGE),
+    [transactions]
+  )
+  const pagedResults = useMemo(
+    () => transactions.slice(
+      (currentPage - 1) * RESULT_PER_PAGE,
+      currentPage * RESULT_PER_PAGE
+    ),
+    [transactions, currentPage]
+  )
+
+  return { totalPages, pagedResults, currentPage }
+}
+```
+
+| Returned value | Type | Description |
+|---|---|---|
+| `currentPage` | `number` | Active page number (1-indexed, from URL) |
+| `totalPages` | `number` | Total number of pages for the current result set |
+| `pagedResults` | `Transaction[]` | Slice of transactions for the current page |
+
+### `useTransactionsFetch`
+
+**File:** `src/hooks/useTransactionsFetch.tsx`
+
+Manages the full data-fetching lifecycle for the Transactions page. Filters are synchronised with the URL as search parameters so that filter state is bookmarkable and survives page refresh.
+
+```ts
+export default function useTransactionsFetch() {
+  // filters derived from URL search params
+  const filters = useMemo<Filters>(() => ({
+    type:     searchParams.get('type')     || '',
+    category: searchParams.get('category') || '',
+    year:     searchParams.get('year')     || '',
+    month:    searchParams.get('month')    || '',
+  }), [searchParams])
+
+  // re-fetches transactions whenever filters change
+  const loadData = useCallback(async () => { ... }, [filters])
+
+  return { loading, error, transactions, loadData, resetFilters, updateFilter, categories, filters }
+}
+```
+
+Categories are fetched once on mount (no dependency on filters) and cached for the lifetime of the `TransactionsContext`.
+
+### `useTransactionsForm`
+
+**File:** `src/hooks/useTransactionsForm.tsx`
+
+Holds the form state for the create/edit transaction modal and the visibility state for both the edit and delete confirmation modals.
+
+```ts
+const INITIAL_TRANSACTION: Transaction = {
+  id:          "",
+  description: '',
+  amount:      0,
+  type:        'expense',
+  category:    '',
+  date:        ''
+}
+
+export default function useTransactionForm() {
+  const [isModalEditOpen,   setIsModalEditOpen]   = useState(false)
+  const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false)
+  const [formData,          setFormData]          = useState<Transaction>(INITIAL_TRANSACTION)
+
+  return {
+    isModalEditOpen, setIsModalEditOpen,
+    isModalDeleteOpen, setIsModalDeleteOpen,
+    formData, setFormData
+  }
+}
+```
+
+`formData` is populated by the parent component when the user clicks an edit or delete action on a row, then read by the modal to pre-fill fields.

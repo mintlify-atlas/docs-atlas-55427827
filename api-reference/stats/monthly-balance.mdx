@@ -1,0 +1,134 @@
+---
+title: 'Monthly balance'
+description: 'Get income, expense, and balance totals for the current and previous month, plus month-over-month change percentages.'
+api: 'GET /api/stats/monthly'
+---
+
+Returns a `Balance` object with aggregated totals for the selected month alongside the prior month, and the percentage change between them. Used by the Dashboard **BalanceCard** component.
+
+## Query parameters
+
+<ParamField query="year" type="string">
+  Filter by year. Defaults to the current year when omitted.
+
+  Example: `2024`
+</ParamField>
+
+<ParamField query="month" type="string">
+  Filter by month as a numeric string (`1`–`12`). Defaults to the current month when omitted.
+
+  Example: `3`
+</ParamField>
+
+## Response
+
+<ResponseField name="transactionsAmount" type="object" required>
+  Aggregated totals for the current and previous months.
+
+  <Expandable title="transactionsAmount properties" defaultOpen={true}>
+    <ResponseField name="current" type="object" required>
+      Totals for the selected month.
+
+      <Expandable title="current properties" defaultOpen={true}>
+        <ResponseField name="income" type="number | null">
+          Total income for the selected month. `null` when no transactions exist.
+        </ResponseField>
+        <ResponseField name="expense" type="number | null">
+          Total expenses for the selected month. `null` when no transactions exist.
+        </ResponseField>
+        <ResponseField name="balance" type="number | null">
+          Net balance (income minus expenses) for the selected month. `null` when no transactions exist.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <ResponseField name="previous" type="object" required>
+      Totals for the month prior to the selected month.
+
+      <Expandable title="previous properties">
+        <ResponseField name="income" type="number | null">
+          Total income for the previous month. `null` when no transactions exist.
+        </ResponseField>
+        <ResponseField name="expense" type="number | null">
+          Total expenses for the previous month. `null` when no transactions exist.
+        </ResponseField>
+        <ResponseField name="balance" type="number | null">
+          Net balance for the previous month. `null` when no transactions exist.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="change" type="object" required>
+  Month-over-month percentage change for each metric.
+
+  <Expandable title="change properties" defaultOpen={true}>
+    <ResponseField name="income" type="number | null">
+      Percentage change in income compared to the previous month. `null` when the previous month has no data.
+    </ResponseField>
+    <ResponseField name="expense" type="number | null">
+      Percentage change in expenses compared to the previous month. `null` when the previous month has no data.
+    </ResponseField>
+    <ResponseField name="balance" type="number | null">
+      Percentage change in net balance compared to the previous month. `null` when the previous month has no data.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request GET \
+  --url "${VITE_API_URL}/api/stats/monthly?year=2024&month=3"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "transactionsAmount": {
+    "current": {
+      "income": 3500.00,
+      "expense": 1200.50,
+      "balance": 2299.50
+    },
+    "previous": {
+      "income": 3000.00,
+      "expense": 1500.00,
+      "balance": 1500.00
+    }
+  },
+  "change": {
+    "income": 16.67,
+    "expense": -20.03,
+    "balance": 53.30
+  }
+}
+```
+
+```json 200 (no data)
+{
+  "transactionsAmount": {
+    "current": {
+      "income": null,
+      "expense": null,
+      "balance": null
+    },
+    "previous": {
+      "income": null,
+      "expense": null,
+      "balance": null
+    }
+  },
+  "change": {
+    "income": null,
+    "expense": null,
+    "balance": null
+  }
+}
+```
+
+</ResponseExample>

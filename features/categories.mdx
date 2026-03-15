@@ -1,0 +1,67 @@
+---
+title: "Categories"
+description: "Organize your transactions with custom spending categories."
+---
+
+Categories are labels you assign to transactions to group related spending and income together. Examples include `Food`, `Transport`, `Salary`, or `Utilities`. Every transaction requires a category, and categories appear throughout the app — in transaction filters and in the Dashboard's spending charts.
+
+## Viewing categories
+
+The Categories page lists all your categories in a table. Each row shows the category name along with **Edit** and **Delete** action buttons.
+
+If you have not created any categories yet, the table shows an empty state prompting you to create your first one.
+
+## Adding a category
+
+Click **+ New Category** in the top-right corner to open the creation modal.
+
+<Steps>
+  <Step title="Enter a name">
+    Type the name for your new category in the **Name** field. The name cannot be empty.
+  </Step>
+  <Step title="Save">
+    Click **Save** to create the category. The table refreshes automatically.
+  </Step>
+</Steps>
+
+To close the modal without saving, click **Cancel** or press `Escape`.
+
+## Editing a category
+
+Click the **Edit** button next to a category to open the edit modal. The current name is pre-filled in the input field. Update the name and click **Save** to apply the change.
+
+Renaming a category updates its name everywhere it is used, including on existing transactions.
+
+## Deleting a category
+
+Click the **Delete** button next to a category to open a confirmation dialog. The dialog shows the category name and warns that the action cannot be undone.
+
+- Click **Delete** to permanently remove the category.
+- Click **Cancel** to go back without deleting.
+
+<Warning>
+  Deleting a category removes it from the categories list. Transactions that were assigned to that category will retain the category name as a string, but the category will no longer appear in filter dropdowns or spending charts.
+</Warning>
+
+## How categories are used
+
+Categories connect several parts of the app together:
+
+<CardGroup cols={2}>
+  <Card title="Transaction form" icon="file-pen">
+    When creating or editing a transaction, you select a category from a dropdown populated by your categories list.
+  </Card>
+  <Card title="Transaction filters" icon="filter">
+    On the Transactions page, the Categories filter lets you view transactions belonging to a specific category.
+  </Card>
+  <Card title="Dashboard charts" icon="chart-pie">
+    The top-categories and all-categories charts on the Dashboard group expenses by category to show your spending breakdown.
+  </Card>
+  <Card title="Spending insights" icon="magnifying-glass-chart">
+    Categories make it easy to spot trends — for example, noticing that `Dining` consistently appears in your top five spending categories.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Create categories before adding transactions. The transaction form requires at least one category to exist before you can save a new transaction.
+</Tip>

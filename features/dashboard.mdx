@@ -1,0 +1,65 @@
+---
+title: "Dashboard"
+description: "Get a real-time overview of your financial health with balance cards and interactive charts."
+---
+
+The Dashboard is the main landing page of the app. It gives you an at-a-glance summary of your financial activity for any selected month and year, including total income, total expenses, net balance, and spending breakdowns by category.
+
+## Balance summary
+
+At the top of the dashboard, three cards display your current period's financial snapshot:
+
+<CardGroup cols={3}>
+  <Card title="Total incomes" icon="arrow-trend-up">
+    The sum of all income transactions in the selected period.
+  </Card>
+  <Card title="Total expenses" icon="arrow-trend-down">
+    The sum of all expense transactions in the selected period.
+  </Card>
+  <Card title="Balance" icon="scale-balanced">
+    Net balance calculated as income minus expenses. Displayed in green when positive, red when negative.
+  </Card>
+</CardGroup>
+
+Each card also shows a percentage change compared to the previous month. An upward triangle (▲) means the value increased; a downward triangle (▼) means it decreased. The comparison indicator is hidden when there is no change or no previous-month data to compare against.
+
+## Filtering by period
+
+Two dropdowns in the top-right corner of the page let you select which period to view:
+
+- **Month** — select a specific month (January through December) or "All months"
+- **Year** — select from the years that have recorded transactions, or "All years"
+
+By default, the dashboard loads with the current month and year pre-selected.
+
+## Charts
+
+When transactions exist for the selected period, three interactive charts are displayed below the balance cards. All charts are powered by Apache ECharts and automatically adapt to light and dark mode.
+
+<AccordionGroup>
+  <Accordion title="Income and expenses over time">
+    A bar chart showing daily net cash flow across the selected period. Each bar represents a day (or month, when viewing all months) and reflects the combined income and expense amounts for that day. Positive values appear above the axis; negative values appear below.
+  </Accordion>
+  <Accordion title="Top spending categories">
+    A chart highlighting the five categories with the highest expense totals in the selected period. This gives you a quick view of where most of your money is going.
+  </Accordion>
+  <Accordion title="All categories breakdown">
+    A pie or bar chart showing the expense distribution across all categories for the selected period. Useful for seeing the full picture of your spending, not just the top five.
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+  The top-categories and all-categories charts only appear when there is at least one expense transaction in the period. If all transactions are income, a message is shown in place of those charts.
+</Note>
+
+## Empty state
+
+If no transactions exist for the selected period, the dashboard shows an empty state message:
+
+> "There are no recorded movements during this period. Try selecting a different month or year to view your financial data."
+
+A **View Current Month** button resets the filters back to the current month and year.
+
+## Error state
+
+If the dashboard data fails to load (for example, due to a network issue), an error message is shown with a **Retry** button. Clicking it re-fetches all dashboard data.

@@ -1,0 +1,77 @@
+---
+title: "Settings"
+description: "Customize your profile and appearance preferences."
+---
+
+The Settings page lets you update your display name, change your profile avatar, toggle dark mode, and delete your account.
+
+## Account settings
+
+### Change name
+
+Click **Change name** to open a modal where you can update your display name.
+
+<Steps>
+  <Step title="Open the modal">
+    Click **Change name** in the Account Settings section.
+  </Step>
+  <Step title="Enter your new name">
+    Type your new display name in the **Username** field. The field cannot be empty.
+  </Step>
+  <Step title="Save">
+    Click **Save name** to apply the change. Your name updates across the app immediately.
+  </Step>
+</Steps>
+
+To close without saving, click **Cancel** or press `Escape`.
+
+### Change photo
+
+Click **Change photo** to open an avatar picker modal.
+
+<Steps>
+  <Step title="Open the modal">
+    Click **Change photo** in the Account Settings section.
+  </Step>
+  <Step title="Pick an avatar">
+    A grid of avatar options is displayed. These are DiceBear-generated avatars. Click any avatar to select it instantly — the modal closes and your profile photo updates.
+  </Step>
+</Steps>
+
+To close without changing your avatar, click **Cancel** or press `Escape`.
+
+## Appearance
+
+### Dark mode
+
+The **Dark Mode** toggle switches the app between light and dark themes. Click the toggle to switch; it turns blue when dark mode is active.
+
+Your preference is saved automatically in `localStorage` and persists across sessions and page refreshes.
+
+## Danger zone
+
+### Delete account and data
+
+The **Delete account and data** button is located in the **Danger Zone** section at the bottom of the page.
+
+<Warning>
+  Deleting your account is immediate and cannot be undone. Your session is removed from `localStorage` and you are logged out of the app.
+</Warning>
+
+<Steps>
+  <Step title="Click Delete account and data">
+    Scroll to the Danger Zone section and click the button.
+  </Step>
+  <Step title="Confirm in the dialog">
+    A confirmation modal appears with the message "Are you sure you want to delete your account. This action cannot be undone."
+  </Step>
+  <Step title="Confirm deletion">
+    Click **Delete** to proceed. Your session data is cleared and you are redirected to the login screen.
+  </Step>
+</Steps>
+
+To cancel, click **Cancel** or press `Escape`.
+
+## Logging out
+
+You can log out from the sidebar navigation. Logging out ends your session without deleting your account or data.

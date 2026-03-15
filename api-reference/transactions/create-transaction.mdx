@@ -1,0 +1,130 @@
+---
+title: "Create transaction"
+description: "Create a new income or expense transaction."
+---
+
+## Endpoint
+
+```
+POST /api/transactions
+```
+
+Creates a new transaction record and returns the persisted object, including the server-assigned `id`.
+
+In the frontend, this is called via `createTransaction(newItem)` in `src/api/transactions.ts`:
+
+```ts
+export async function createTransaction(
+  newItem: Transaction,
+): Promise<Transaction> {
+  const response = await fetch(`${API_URL}/api/transactions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(newItem),
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(
+      data.message ?? `Error adding transaction (${response.status})`,
+    );
+  }
+
+  return response.json();
+}
+```
+
+## Request body
+
+Send a JSON object. All fields are required.
+
+<ParamField body="type" type="string" required>
+  Transaction type. Must be `income` or `expense`.
+</ParamField>
+
+<ParamField body="category" type="string" required>
+  Category name for the transaction. Must correspond to an existing category.
+</ParamField>
+
+<ParamField body="description" type="string" required>
+  A brief description of the transaction.
+</ParamField>
+
+<ParamField body="date" type="string" required>
+  Date of the transaction in ISO 8601 format (e.g. `2025-03-15`).
+</ParamField>
+
+<ParamField body="amount" type="number" required>
+  Monetary value of the transaction. Must be a positive number.
+</ParamField>
+
+## Response
+
+Returns the created `Transaction` object with the server-generated `id` field included.
+
+<ResponseField name="id" type="string">
+  Server-assigned unique identifier for the new transaction.
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  Transaction type: `income` or `expense`.
+</ResponseField>
+
+<ResponseField name="category" type="string">
+  Category of the transaction.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Description of the transaction.
+</ResponseField>
+
+<ResponseField name="date" type="string">
+  Date of the transaction.
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  Monetary value of the transaction.
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+
+```bash curl
+curl -X POST https://your-api.example.com/api/transactions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "type": "expense",
+    "category": "Groceries",
+    "description": "Weekly grocery run",
+    "date": "2025-03-15",
+    "amount": 94.50
+  }'
+```
+
+</CodeGroup>
+
+### Example response
+
+```json
+{
+  "id": "txn_abc123",
+  "type": "expense",
+  "category": "Groceries",
+  "description": "Weekly grocery run",
+  "date": "2025-03-15",
+  "amount": 94.50
+}
+```
+
+## Error handling
+
+<Warning>
+  On a `400` or `422` response, the API returns a JSON body with a `message` field describing the validation error. The frontend surfaces this message directly to the user via `data.message`.
+</Warning>
+
+```json
+{
+  "message": "Amount must be a positive number"
+}
+```

@@ -1,0 +1,112 @@
+---
+title: "Get transactions"
+description: "Retrieve a list of transactions, optionally filtered by type, category, year, and month."
+---
+
+## Endpoint
+
+```
+GET /api/transactions
+```
+
+Returns an array of transaction records. All query parameters are optional — omitting them returns all transactions.
+
+In the frontend, this endpoint is called via `getTransactions(filters?)` in `src/api/transactions.ts`:
+
+```ts
+export async function getTransactions(filters = {}): Promise<Transaction[]> {
+  const params = new URLSearchParams(filters);
+  const res = await fetch(`${API_URL}/api/transactions?${params}`);
+  if (!res.ok) throw new Error(`Error loading transactions: ${res.status}`);
+  return res.json();
+}
+```
+
+The `useTransactionsFetch` hook builds filters from the current URL search params and calls this function automatically on mount and whenever filters change.
+
+## Query parameters
+
+<ParamField query="type" type="string">
+  Filter by transaction type. Accepted values: `income`, `expense`.
+</ParamField>
+
+<ParamField query="category" type="string">
+  Filter by category name. Must match the category value stored on the transaction.
+</ParamField>
+
+<ParamField query="year" type="string">
+  Filter by year. Expected format: `YYYY` (e.g. `2025`).
+</ParamField>
+
+<ParamField query="month" type="string">
+  Filter by month. Expected format: numeric month as a string (e.g. `1` for January, `12` for December).
+</ParamField>
+
+## Response
+
+Returns a JSON array of `Transaction` objects.
+
+<ResponseField name="id" type="string">
+  Unique identifier for the transaction.
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  Transaction type. One of `income` or `expense`.
+</ResponseField>
+
+<ResponseField name="category" type="string">
+  Category the transaction belongs to.
+</ResponseField>
+
+<ResponseField name="description" type="string">
+  Human-readable description of the transaction.
+</ResponseField>
+
+<ResponseField name="date" type="string">
+  ISO 8601 date string representing when the transaction occurred.
+</ResponseField>
+
+<ResponseField name="amount" type="number">
+  Monetary value of the transaction.
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+
+```bash curl
+curl -G https://your-api.example.com/api/transactions \
+  --data-urlencode "type=expense" \
+  --data-urlencode "category=Groceries" \
+  --data-urlencode "year=2025" \
+  --data-urlencode "month=3"
+```
+
+</CodeGroup>
+
+### Example response
+
+```json
+[
+  {
+    "id": "txn_abc123",
+    "type": "expense",
+    "category": "Groceries",
+    "description": "Weekly grocery run",
+    "date": "2025-03-08",
+    "amount": 94.50
+  },
+  {
+    "id": "txn_def456",
+    "type": "expense",
+    "category": "Groceries",
+    "description": "Farmers market",
+    "date": "2025-03-15",
+    "amount": 42.00
+  }
+]
+```
+
+<Note>
+  Empty query parameter values (e.g. `type=`) are treated as absent by the frontend — the hook deletes the key from the URL params if the value is an empty string.
+</Note>

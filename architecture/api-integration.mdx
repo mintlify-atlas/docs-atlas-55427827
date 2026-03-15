@@ -1,0 +1,240 @@
+---
+title: "API integration"
+description: "How the frontend connects to the backend REST API and handles data fetching."
+---
+
+All network requests are centralised in a single module: `src/api/transactions.ts`. No component or context calls `fetch` directly — they import named functions from this file.
+
+## Base URL
+
+The backend origin is read from an environment variable at build time:
+
+```ts
+const API_URL = import.meta.env.VITE_API_URL;
+```
+
+Set this in a `.env` file at the project root:
+
+```bash
+VITE_API_URL=http://localhost:3000
+```
+
+<Note>
+  Vite only exposes variables prefixed with `VITE_` to client-side code. Any variable without this prefix will be `undefined` at runtime.
+</Note>
+
+## Passing filters
+
+Functions that accept optional filters convert the plain object to a `URLSearchParams` instance before appending it to the URL:
+
+```ts
+export async function getTransactions(filters = {}): Promise<Transaction[]> {
+  const params = new URLSearchParams(filters);
+  const res = await fetch(`${API_URL}/api/transactions?${params}`);
+  if (!res.ok) throw new Error(`Error loading transactions: ${res.status}`);
+  return res.json();
+}
+```
+
+The `Filters` type used across the app is:
+
+```ts
+export type Filters = {
+  type?:     string;
+  category?: string;
+  year?:     string;
+  month?:    string;
+}
+```
+
+## Error handling
+
+Every function checks `res.ok` (HTTP status 200–299). On failure it throws an `Error` containing the HTTP status code. For mutation endpoints (POST/PATCH/PUT/DELETE) the response body is also parsed for a server-supplied `message`:
+
+```ts
+if (!response.ok) {
+  const data = await response.json().catch(() => ({}));
+  throw new Error(
+    data.message ?? `Error adding transaction (${response.status})`
+  );
+}
+```
+
+Callers (contexts and hooks) catch these errors and store the message in their `error: string | null` state, which components can then display.
+
+## API function reference
+
+### Transactions
+
+<CodeGroup>
+
+```ts getTransactions
+export async function getTransactions(filters = {}): Promise<Transaction[]> {
+  const params = new URLSearchParams(filters);
+  const res = await fetch(`${API_URL}/api/transactions?${params}`);
+  if (!res.ok) throw new Error(`Error loading transactions: ${res.status}`);
+  return res.json();
+}
+```
+
+```ts createTransaction
+export async function createTransaction(
+  newItem: Transaction,
+): Promise<Transaction> {
+  const response = await fetch(`${API_URL}/api/transactions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(newItem),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message ?? `Error adding transaction (${response.status})`);
+  }
+  return response.json();
+}
+```
+
+```ts updateTransaction
+export async function updateTransaction(
+  item: Transaction,
+): Promise<Transaction> {
+  const response = await fetch(`${API_URL}/api/transactions/${item.id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(item),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message ?? `Error editing transaction (${response.status})`);
+  }
+  return response.json();
+}
+```
+
+```ts deleteTransaction
+export async function deleteTransaction(id: string): Promise<void> {
+  const response = await fetch(`${API_URL}/api/transactions/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message ?? `Error delete transition (${response.status})`);
+  }
+}
+```
+
+</CodeGroup>
+
+### Statistics
+
+<CodeGroup>
+
+```ts getBalance
+export async function getBalance(filters = {}): Promise<Balance> {
+  const params = new URLSearchParams(filters);
+  const res = await fetch(`${API_URL}/api/stats/monthly?${params}`);
+  if (!res.ok) throw new Error(`"Error loading balance ${res.status}`);
+  return res.json();
+}
+```
+
+```ts getTopCategories
+export async function getTopCategories(filters = {}): Promise<DataOptions[]> {
+  const params = new URLSearchParams(filters);
+  const res = await fetch(`${API_URL}/api/stats/top-categories?${params}`);
+  if (!res.ok) throw new Error(`Error fetching categories ${res.status}`);
+  return res.json();
+}
+```
+
+```ts getAllCategories
+export async function getAllCategories(filters = {}): Promise<DataOptions[]> {
+  const params = new URLSearchParams(filters);
+  const res = await fetch(`${API_URL}/api/stats/by-category?${params}`);
+  if (!res.ok) throw new Error(`Error fetching categories ${res.status}`);
+  return res.json();
+}
+```
+
+```ts getYears
+export async function getYears(): Promise<number[]> {
+  const res = await fetch(`${API_URL}/api/transactions/years`);
+  if (!res.ok) throw new Error(`Error fetching years ${res.status}`);
+  return res.json();
+}
+```
+
+</CodeGroup>
+
+### Categories
+
+<CodeGroup>
+
+```ts getCategories
+export async function getCategories(): Promise<Category[]> {
+  const res = await fetch(`${API_URL}/api/categories`);
+  if (!res.ok) throw new Error(`Error fetching categories ${res.status}`);
+  return res.json();
+}
+```
+
+```ts createCategory
+export async function createCategory(newItem: Category): Promise<Category> {
+  const response = await fetch(`${API_URL}/api/categories`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(newItem),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message ?? `Error adding category (${response.status})`);
+  }
+  return response.json();
+}
+```
+
+```ts updateCategory
+export async function updateCategory(item: Category): Promise<Category> {
+  const response = await fetch(`${API_URL}/api/categories/${item.id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(item),
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message ?? `Error editing category (${response.status})`);
+  }
+  return response.json();
+}
+```
+
+```ts deleteCategory
+export async function deleteCategory(id: string): Promise<void> {
+  const response = await fetch(`${API_URL}/api/categories/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(data.message ?? `Error deleting category (${response.status})`);
+  }
+}
+```
+
+</CodeGroup>
+
+## Endpoint summary
+
+| Function | Method | Endpoint | Returns |
+|---|---|---|---|
+| `getTransactions` | GET | `/api/transactions` | `Transaction[]` |
+| `createTransaction` | POST | `/api/transactions` | `Transaction` |
+| `updateTransaction` | PATCH | `/api/transactions/:id` | `Transaction` |
+| `deleteTransaction` | DELETE | `/api/transactions/:id` | `void` |
+| `getBalance` | GET | `/api/stats/monthly` | `Balance` |
+| `getTopCategories` | GET | `/api/stats/top-categories` | `DataOptions[]` |
+| `getAllCategories` | GET | `/api/stats/by-category` | `DataOptions[]` |
+| `getYears` | GET | `/api/transactions/years` | `number[]` |
+| `getCategories` | GET | `/api/categories` | `Category[]` |
+| `createCategory` | POST | `/api/categories` | `Category` |
+| `updateCategory` | PUT | `/api/categories/:id` | `Category` |
+| `deleteCategory` | DELETE | `/api/categories/:id` | `void` |

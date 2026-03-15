@@ -1,0 +1,69 @@
+---
+title: "Delete transaction"
+description: "Permanently delete a transaction by ID."
+---
+
+## Endpoint
+
+```
+DELETE /api/transactions/:id
+```
+
+Permanently removes a transaction from the system. This action cannot be undone.
+
+In the frontend, this is called via `deleteTransaction(id)` in `src/api/transactions.ts`:
+
+```ts
+export async function deleteTransaction(id: string): Promise<void> {
+  const response = await fetch(`${API_URL}/api/transactions/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+    throw new Error(
+      data.message ?? `Error delete transition (${response.status})`,
+    );
+  }
+}
+```
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The unique identifier of the transaction to delete.
+</ParamField>
+
+## Response
+
+Returns `204 No Content` on success with an empty response body.
+
+<ResponseField name="(empty body)" type="null">
+  No response body is returned on successful deletion.
+</ResponseField>
+
+## Example
+
+<CodeGroup>
+
+```bash curl
+curl -X DELETE https://your-api.example.com/api/transactions/txn_abc123
+```
+
+</CodeGroup>
+
+## Error handling
+
+<Warning>
+  Deletion is permanent. There is no soft-delete or recovery mechanism. Ensure the correct `id` is confirmed before calling this endpoint.
+</Warning>
+
+If the request fails (e.g. the transaction is not found or a server error occurs), the API returns a non-2xx status code. The frontend attempts to parse a `message` field from the response body and throws it as an error:
+
+```json
+{
+  "message": "Transaction not found"
+}
+```
+
+If the response body cannot be parsed as JSON, the error falls back to a generic message including the HTTP status code.

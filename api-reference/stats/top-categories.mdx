@@ -1,0 +1,72 @@
+---
+title: 'Top categories'
+description: 'Get the top spending categories by total amount for a given period.'
+api: 'GET /api/stats/top-categories'
+---
+
+Returns an array of the highest-spending categories for the selected period, ordered by total amount descending. Used by the Dashboard pie and bar charts powered by ECharts.
+
+## Query parameters
+
+<ParamField query="year" type="string">
+  Filter by year. Defaults to the current year when omitted.
+
+  Example: `2024`
+</ParamField>
+
+<ParamField query="month" type="string">
+  Filter by month as a numeric string (`1`–`12`). Defaults to the current month when omitted.
+
+  Example: `3`
+</ParamField>
+
+## Response
+
+An array of `DataOptions` objects, each representing a category and its spending total.
+
+<ResponseField name="" type="DataOptions[]">
+  Array of top categories sorted by value descending.
+
+  <Expandable title="DataOptions properties" defaultOpen={true}>
+    <ResponseField name="name" type="string" required>
+      The category name.
+    </ResponseField>
+    <ResponseField name="value" type="number" required>
+      Total amount spent in this category for the selected period.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request GET \
+  --url "${VITE_API_URL}/api/stats/top-categories?year=2024&month=3"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+[
+  {
+    "name": "Food",
+    "value": 620.00
+  },
+  {
+    "name": "Transport",
+    "value": 310.50
+  },
+  {
+    "name": "Entertainment",
+    "value": 180.00
+  }
+]
+```
+
+```json 200 (no data)
+[]
+```
+
+</ResponseExample>

@@ -1,0 +1,68 @@
+---
+title: Introduction
+description: Personal Finance Web — a full-featured app to track your income, expenses, and spending habits.
+---
+
+# Personal Finance Web
+
+Personal Finance Web is a responsive, full-stack personal finance management application built with React, TypeScript, and Vite. It connects to a REST API backend to let you track every transaction, organize spending by category, and visualize your financial health through interactive charts.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/getting-started/quickstart">
+    Get the app up and running in minutes
+  </Card>
+  <Card title="Configuration" icon="gear" href="/getting-started/configuration">
+    Configure your environment and API connection
+  </Card>
+  <Card title="Dashboard" icon="chart-line" href="/features/dashboard">
+    Explore your financial overview with charts and balance cards
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/transactions/get-transactions">
+    Browse all available REST API endpoints
+  </Card>
+</CardGroup>
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Financial dashboard" icon="chart-pie">
+    Balance cards showing current income, expenses, and net balance with month-over-month comparison. Interactive ECharts visualizations break down spending by category.
+  </Card>
+  <Card title="Transaction management" icon="list-check">
+    Full CRUD for income and expense transactions. Filter by type, category, year, and month. Paginated table with inline edit and delete.
+  </Card>
+  <Card title="Category management" icon="tags">
+    Create, rename, and delete custom categories. Categories drive both transaction tagging and chart grouping.
+  </Card>
+  <Card title="Dark mode" icon="moon">
+    System-aware dark mode that persists across sessions via localStorage. Toggle anytime from the Settings page.
+  </Card>
+  <Card title="User profiles" icon="user">
+    Local session with customizable display name and avatar. No external auth service required.
+  </Card>
+  <Card title="Responsive design" icon="mobile">
+    Tailwind CSS layout adapts from mobile to desktop. Sidebar navigation, filterable tables, and modals all work on small screens.
+  </Card>
+</CardGroup>
+
+## Technology stack
+
+| Layer | Technology |
+|---|---|
+| Framework | React 19 + TypeScript |
+| Build tool | Vite 7 |
+| Styling | Tailwind CSS 4 |
+| Charts | ECharts via echarts-for-react |
+| Routing | React Router DOM 7 |
+| HTTP client | Native `fetch` |
+| State | React Context API |
+
+## How it works
+
+The frontend is a single-page application that talks to a separate REST API backend over HTTP. All API calls are centralized in `src/api/transactions.ts`. The base URL is configured through the `VITE_API_URL` environment variable, so you can point the app at any compatible backend.
+
+Authentication is handled locally: entering a name and choosing an avatar stores a session in `localStorage`. Protected routes redirect unauthenticated users to `/login`.
+
+<Note>
+This repository contains only the frontend. You need a compatible backend API running at the URL you set in `VITE_API_URL` to see real data.
+</Note>

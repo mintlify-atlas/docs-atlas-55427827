@@ -1,0 +1,53 @@
+---
+title: 'Create category'
+description: 'Create a new transaction category.'
+api: 'POST /api/categories'
+---
+
+Creates a new category and returns the created object, including the server-assigned `id`.
+
+## Body
+
+<ParamField body="name" type="string" required>
+  Display name for the new category. Must be unique.
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string" required>
+  Unique identifier assigned to the newly created category.
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  The name of the created category, as provided in the request body.
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request POST \
+  --url "${VITE_API_URL}/api/categories" \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "name": "Utilities"
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 201
+{
+  "id": "4",
+  "name": "Utilities"
+}
+```
+
+```json 400
+{
+  "message": "Category name is required"
+}
+```
+
+</ResponseExample>

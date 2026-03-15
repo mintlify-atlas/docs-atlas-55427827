@@ -1,0 +1,99 @@
+---
+title: "Transactions"
+description: "Log, view, edit, and delete your income and expense transactions."
+---
+
+The Transactions page is where you record and manage every financial movement — both money coming in (income) and money going out (expenses). All transactions you create here feed into the Dashboard's balance summary and charts.
+
+## Transaction table
+
+The main table lists all transactions that match the active filters. Each row displays:
+
+| Column | Description |
+|---|---|
+| **Date** | The date the transaction occurred |
+| **Description** | A short label you provided for the transaction |
+| **Category** | The category assigned to the transaction |
+| **Amount** | The transaction value |
+| **Actions** | Edit and delete buttons |
+
+The table footer shows how many transactions are currently displayed and which page you are on.
+
+## Adding a transaction
+
+Click **+ New Transaction** in the top-right corner to open the creation modal.
+
+<Steps>
+  <Step title="Fill in the description">
+    Enter a short label for the transaction, for example `Grocery run` or `Freelance payment`. The description cannot be empty.
+  </Step>
+  <Step title="Enter the amount">
+    Type the transaction value. The amount must be greater than 0.
+  </Step>
+  <Step title="Select the type">
+    Choose **Expense** or **Income** from the dropdown. These are the only two valid transaction types.
+  </Step>
+  <Step title="Select a category">
+    Pick one of your existing categories from the dropdown. To add a new category, go to the [Categories](/features/categories) page first.
+  </Step>
+  <Step title="Set the date">
+    The date defaults to today. Change it using the date picker if needed.
+  </Step>
+  <Step title="Save">
+    Click **Save** to create the transaction. The table refreshes automatically.
+  </Step>
+</Steps>
+
+<Note>
+  The valid transaction types are `income` and `expense`. No other values are accepted.
+</Note>
+
+## Editing a transaction
+
+Click the **Edit** button on any row to open the edit modal. The form pre-fills with the transaction's current values. Update any field and click **Save** to apply the changes.
+
+To discard changes, click **Cancel** or press `Escape`.
+
+## Deleting a transaction
+
+Click the **Delete** button on any row to open a confirmation dialog. The dialog shows the transaction description and the warning "This action cannot be undone."
+
+- Click **Delete** to confirm and permanently remove the transaction.
+- Click **Cancel** to go back without deleting.
+
+<Warning>
+  Deleting a transaction is permanent. There is no way to recover it after confirmation.
+</Warning>
+
+## Filtering transactions
+
+A filter panel above the table lets you narrow down which transactions are shown. All filters can be combined.
+
+<Tabs>
+  <Tab title="By year">
+    Select a specific year from the **Year** dropdown. Only years with existing transactions appear in the list. Select "All years" to remove the filter.
+  </Tab>
+  <Tab title="By month">
+    Select a month from the **Month** dropdown (January through December). Select "All months" to remove the filter.
+  </Tab>
+  <Tab title="By category">
+    Select a category from the **Categories** dropdown. Only categories you have created appear here. Select "All Categories" to remove the filter.
+  </Tab>
+  <Tab title="By type">
+    Select **Income** or **Expense** from the **Types** dropdown. Select "All types" to show both.
+  </Tab>
+</Tabs>
+
+Click **Reset filters** to clear all active filters at once.
+
+If no transactions match the active filters, an empty state is shown with a **Clear Filters** button.
+
+## Pagination
+
+When there are more transactions than fit on one page, a pagination bar appears below the table. It shows:
+
+- How many transactions are currently visible (e.g., `Showing 1 to 10 of 34 transactions`)
+- Page number buttons to jump to a specific page
+- Previous (←) and next (→) navigation arrows
+
+The active page is highlighted. The previous arrow is disabled on the first page; the next arrow is disabled on the last page.
