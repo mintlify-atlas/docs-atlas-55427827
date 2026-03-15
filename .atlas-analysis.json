@@ -1,0 +1,96 @@
+{
+  "projectType": "saas",
+  "projectName": "Personal Finance Web",
+  "projectDescription": "A personal finance management web app for tracking income, expenses, and categories with charts, filters, and dark mode support.",
+  "theme": "almond",
+  "primaryColor": "#5b5ea6",
+  "lightColor": "#e8e9f5",
+  "darkColor": "#2d2f6b",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "getting-started/quickstart", "getting-started/configuration"]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/dashboard",
+              "features/transactions",
+              "features/categories",
+              "features/settings"
+            ]
+          },
+          {
+            "group": "Architecture",
+            "pages": [
+              "architecture/overview",
+              "architecture/api-integration",
+              "architecture/state-management"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Transactions",
+            "pages": [
+              "api-reference/transactions/get-transactions",
+              "api-reference/transactions/create-transaction",
+              "api-reference/transactions/update-transaction",
+              "api-reference/transactions/delete-transaction"
+            ]
+          },
+          {
+            "group": "Categories",
+            "pages": [
+              "api-reference/categories/get-categories",
+              "api-reference/categories/create-category",
+              "api-reference/categories/update-category",
+              "api-reference/categories/delete-category"
+            ]
+          },
+          {
+            "group": "Statistics",
+            "pages": [
+              "api-reference/stats/monthly-balance",
+              "api-reference/stats/top-categories",
+              "api-reference/stats/by-category"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Financial dashboard with income/expense balance cards and trend comparisons",
+    "Interactive charts powered by ECharts showing spending by category",
+    "Transaction management with full CRUD operations and filtering",
+    "Category management with custom categories for organizing transactions",
+    "Month/year filters for viewing historical financial data",
+    "Dark mode toggle with system preference detection and localStorage persistence",
+    "User profile customization with avatar selection and name editing",
+    "Protected routes with session-based authentication via localStorage",
+    "Lazy-loaded pages with Suspense for optimized performance",
+    "Responsive design with Tailwind CSS and mobile-friendly layouts"
+  ],
+  "publicApiSurface": [
+    "GET /api/transactions",
+    "POST /api/transactions",
+    "PATCH /api/transactions/:id",
+    "DELETE /api/transactions/:id",
+    "GET /api/transactions/years",
+    "GET /api/categories",
+    "POST /api/categories",
+    "PUT /api/categories/:id",
+    "DELETE /api/categories/:id",
+    "GET /api/stats/monthly",
+    "GET /api/stats/top-categories",
+    "GET /api/stats/by-category"
+  ]
+}
